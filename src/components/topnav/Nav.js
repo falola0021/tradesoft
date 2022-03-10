@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View,TouchableOpacity,Image } from 'react-native';
-import React from 'react';
+import React, { useState,useEffect,useContext } from 'react'
+import { StyleSheet, Text, View,TouchableOpacity,Image, SafeAreaView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Logo from "../../../assets/images/logo.png"
 import { useNavigation } from '@react-navigation/native';
+import { AppContext } from '../../../App';
 
 
 const Nav = ({ navigationProps }) => {
@@ -13,21 +14,37 @@ const Nav = ({ navigationProps }) => {
 navigation.navigate("NotificationScreen")
   }
 
+  const app = useContext(AppContext);
+  var  getNotificatiobCount = app.getNotificatiobCount;
+  const  notificationCount = app.notificationCount;
+  const [message, setMessage] = React.useState(null);
+  const [modalVisible ,setModalVisible] = React.useState(false);
+
+  const [loading ,setLoading] = React.useState(false);
+ 
+  useEffect(() => {
+    getNotificatiobCount(setModalVisible,setMessage,setLoading)
+  }, [])
+
   
   return (
+    <SafeAreaView>
     <View style={styles.container}>
       <TouchableOpacity style={styles.menuicon} onPress={navigationProps.toggleDrawer}>
         <MaterialCommunityIcons name='menu' color='#fff' size={33} />
         </TouchableOpacity>
          <Image style={styles.logo} source={Logo}/>
          <TouchableOpacity onPress={handleNotification}>
+           {notificationCount>0 &&
            <View style={styles.notify} >
-             <Text style={styles.notifytext}>5</Text>
+             <Text style={styles.notifytext}>{notificationCount}</Text>
            </View>
+}
          <MaterialCommunityIcons name='bell-outline' color='#fff' size={30} />
          </TouchableOpacity>
       
     </View>
+    </SafeAreaView>
   );
 };
 
@@ -54,8 +71,8 @@ const styles = StyleSheet.create({
     left:15,
     backgroundColor:"red",
    borderRadius:20,
-   width:17,
-   height:17,
+   width:18,
+   height:18,
    alignItems:"center",
    zIndex:1,
    bottom:15

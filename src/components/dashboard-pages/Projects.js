@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef,useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -21,17 +21,33 @@ import {
   Entypo,
 } from '@expo/vector-icons';
 import Avatar from '../../../assets/images/avatar.png';
+import { AppContext } from '../../../App';
+import moment from "moment"
+
 
 import { ScrollView } from 'react-native-gesture-handler';
 
 const Create = () => {
   const navigation = useNavigation();
   const [modalVisible ,setModalVisible] = React.useState(false);
+  const app = useContext(AppContext);
+  var getAllLiveProjects = app.getAllLiveProjects;
+  var allLiveProjects = app.allLiveProjects;
+
+  const err = app.err;
+  const [message ,setMessage] = React.useState(null);
+  const [loading ,setLoading] = React.useState(false);
 
 
-  const handleNavigateToDetails = () => {
+  
 
-    navigation.navigate('ProjectDetails')
+useEffect(() => {
+  getAllLiveProjects(setModalVisible,setMessage,setLoading)
+}, [])
+
+  const handleNavigateToDetails = (details) => {
+
+    navigation.navigate('ProjectDetails',{details})
   };
 
   return (
@@ -44,8 +60,72 @@ const Create = () => {
             style={styles.scroll}
           >
             <View style={styles.viewcontainer}>
+
+            <FlatList
+              numColumns={2}
+              
+              columnWrapperStyle={{justifyContent: 'space-between'}}
+
+                
+                horizontal={false}
+                showsVerticalScrollIndicator={false}
+                legacyImplementation={false}
+                
+                data={allLiveProjects}
+                keyExtractor={(item) => item.identifier}
+                renderItem={({ item, index }) => (
+                  <TouchableOpacity onPress={()=>handleNavigateToDetails(item)} style={styles.secbox}>
+                  <ImageBackground
+                    imageStyle={{
+                      borderTopLeftRadius: 6,
+                      borderTopRightRadius: 6,
+                    }}
+                    source={{
+                      uri:`http://portal.trade-soft.co.uk/${item.image_src}`,
+                    }}                    style={styles.imgbg}
+                  >
+                     <FontAwesome
+                  name='tag'
+                  color={item.is_callout=="1"?"#01B0E9":"#66C825"}
+                  size={18}
+                />
+                  </ImageBackground>
+                  <View style={styles.bottomtxtbox}>
+                    <Text style={styles.bottomtxt}>{item?.name}</Text>
+                  </View>
+  
+                  <View style={styles.bottomtxtbox2}>
+                    <Text style={styles.bottomtxt2}>{item?.address.address_line_1}</Text>
+                  </View>
+                  <View style={styles.bottomtxtbox2}>
+                    <Text style={styles.bottomtxt2}>Task: </Text>
+                    <Text style={styles.bottomtxt3}>Clean Gutter</Text>
+                  </View>
+                  <View style={styles.bottomtxtbox2}>
+                    <Text style={styles.bottomtxt2}>Start: </Text>
+                    <Text style={styles.bottomtxt3}>{
+                    moment( item.start_date).format('MM-DD-YY, h:mm:ss a')
+                   }</Text>
+                  </View>
+                 <View style={styles.bottomtxtbox2}>
+                    <Text style={styles.bottomtxt2}>End: </Text>
+                    <Text style={styles.bottomtxt3}>{ moment( item.end_date).format('MM-DD-YY, h:mm:ss a')}</Text>
+                  </View>
+                  <View style={styles.bottomtxtbox2}>
+                    <Text style={styles.bottomtxt2}>Project Status: </Text>
+                    <Text style={styles.bottomtxt4}>{item.status}</Text>
+                  </View>
+                  
+                  
+                  
+                </TouchableOpacity> 
+
+                )}
+                  
+                    
+                  />
              
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
+              {/* <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
                 <ImageBackground
                   imageStyle={{
                     borderTopLeftRadius: 6,
@@ -80,188 +160,9 @@ const Create = () => {
                 
                 
                 
-              </TouchableOpacity>
+              </TouchableOpacity> */}
              
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
+             
               
              
             </View>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,9 @@ import {
   Touchable,
   ImageBackground,
   SafeAreaView,
+  TouchableWithoutFeedback,
+  Keyboard
+ 
 } from 'react-native';
 import Input from '../../components/inputs/Password';
 import AppLoading from 'expo-app-loading';
@@ -20,32 +23,77 @@ import Logo from '../../../assets/images/logo.png';
 
 import Button from '../../components/green-button/Button';
 import InactiveButton from '../../components/inactive-button/Button';
+import Loader from "../../components/loader/Loader"
+import { AppContext } from '../../../App';
+import { showMessage, hideMessage } from 'react-native-flash-message';
+import * as Device from 'expo-device';
+
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import Auth from '../../services/auth.service';
-// import EModal from '../../components/errorModal/EModal';
+
 import {
-    useFonts,
-    Nunito_700Bold,
-    Nunito_800ExtraBold,
-    Nunito_400Regular,
-    Nunito_600SemiBold,
-  } from '@expo-google-fonts/nunito';
+  useFonts,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+  Nunito_400Regular,
+  Nunito_600SemiBold,
+} from '@expo-google-fonts/nunito';
 
 const Login = () => {
   const navigation = useNavigation();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [message, setMessage] = React.useState(null);
   const [modalVisible, setModalVisible] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
-  const handleNavigate = () => {
-    // login(email, password, setErr, setModalVisible);
+  const app = useContext(AppContext);
+  var login = app.login;
+  const success = app.success;
+  const err = app.err;
+
+
+
+
+  useEffect(async  () => {
+    const deviceId = await AsyncStorage.getItem('deviceId');
+   if(deviceId){
+      
+    }else{
+      AsyncStorage.setItem('deviceId',Device.osInternalBuildId);
+
+    }
+    
+  }, [])
+
+  const handleLogin = () => {
+    Keyboard.dismiss()
+    let username = email;
+    login(username, password, setModalVisible, setMessage,setLoading);
   };
+  
+  if (err && message) {
+    showMessage({
+      message: 'ERROR',
+      description: message,
+      type: 'danger',
+    });
+    setMessage(false);
+  }
 
-    const handleLogin =async () => {
-    //await AsyncStorage.removeItem("userEmail")
-      navigation.navigate('DashboardScreen')
-    };
+  if (success && message) {
+    showMessage({
+      message: 'SUCCESS',
+      description: message,
+      type: 'success',
+    });
+    setMessage(false);
+  }
+
+  // const handleLogin =async () => {
+  // //await AsyncStorage.removeItem("userEmail")
+  //   navigation.navigate('DashboardScreen')
+  // };
 
   let [fontsLoaded] = useFonts({
     Nunito_700Bold,
@@ -56,62 +104,66 @@ const Login = () => {
   if (!fontsLoaded) {
     return <AppLoading />;
   } else {
+    return (
+      <SafeAreaView >
+        
+        <ImageBackground  source={Bg} resizeMode='cover' style={styles.imagebg}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
 
-  return (
-    <SafeAreaView>
-      <ImageBackground source={Bg} resizeMode='cover' style={styles.imagebg}>
-        {/* <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps='handled'
-      > */}
-        <View style={styles.container}>
-          <View style={styles.logo}>
-            <Image source={Logo} />
-          </View>
-          <View style={styles.input}>
-            <Email outlinecolor='grey' email={email} setEmail={setEmail} />
-          </View>
-          <View style={styles.input}>
-            <Input
-              label='Password'
-              placeholder='Password'
-              outlinecolor='grey'
-              password={password}
-              setPassword={setPassword}
-            />
-          </View>
-          <View style={styles.forgotpasbox}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('ForgotScreen')}
-            >
-              <Text style={styles.forgotpas}>Forgot password?</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => 
-                alert("Not part of the the discussed features")
-                //navigation.navigate('RegisterScreen')
-            }
-            >
-              <Text style={styles.forgotpas}>Don't have an account ?</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.button}>
-            {password && email ? (
-              <Button
-                //loading={loading}
-              handleNavigate={handleLogin}
-                text='Login'
+        
+          <View keyboardShouldPersistTaps="handled" style={styles.container}>
+            <View style={styles.logo}>
+              <Image source={Logo} />
+            </View>
+            <View style={styles.input}>
+              <Email outlinecolor='grey' email={email} setEmail={setEmail} />
+            </View>
+            <View style={styles.input}>
+              <Input
+                label='Password'
+                placeholder='Password(8 characters minimum)'
+                outlinecolor='grey'
+                password={password}
+                setPassword={setPassword}
               />
-            ) : (
-              <InactiveButton text='Login' />
-            )}
+            </View>
+            <View style={styles.forgotpasbox}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ForgotScreen')}
+              >
+                <Text style={styles.forgotpas}>Forgot password?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={
+                  () => alert('Not part of the the discussed features')
+                  //navigation.navigate('RegisterScreen')
+                }
+              >
+                <Text style={styles.forgotpas}>Don't have an account ?</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.button}>
+              {password.length>7 && email ? (
+                <Button
+                  //loading={loading}
+                  handleNavigate={handleLogin}
+                  text='Login'
+                />
+              ) : (
+                <InactiveButton text='Login' />
+              )}
+            </View>
+          
+
+          
           </View>
-        </View>
-      </ImageBackground>
-      {/* </ScrollView> */}
-    </SafeAreaView>
-  );
-            }
+          </TouchableWithoutFeedback>
+        </ImageBackground>
+        {/* </ScrollView> */}
+        <Loader loading={loading}/> 
+      </SafeAreaView>
+    );
+  }
 };
 
 export default Login;
@@ -119,7 +171,7 @@ export default Login;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-  
+
     height: '100%',
     position: 'absolute',
     top: 0,

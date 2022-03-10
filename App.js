@@ -21,12 +21,50 @@ import RegisterScreen from './src/screens/register-screen/Register';
 import DashboardScreen from './src/screens/dashboard-screen/Dashboard';
 import NotificationScreen from './src/screens/notification-screen/Notification';
 import ProjectDetails from './src/screens/project-details/Details'
+import AuthService from './src/services/auth.service'
+import ProjecsService from './src/services/projects.service'
+
+export const AppContext = React.createContext();
+import FlashMessage from "react-native-flash-message";
 
 
 
 
 const Root = () => {
   const Stack = createNativeStackNavigator();
+
+  const {
+    login,
+    logout,
+    success,
+    err,
+    myaccountinfo
+  } = AuthService();
+  
+  const {
+    getAllLiveProjects,
+    allLiveProjects,
+    latestClockinsTime,
+    getNotificatiobCount,
+    getAllProjects,
+    allProjects,
+    notificationCount,
+    getAllNotification,
+  notification,
+  readNotification,
+  readAllNotification,
+  projectDetails,
+  getProjectsDetails,
+  addNote,
+  deleteNote,
+  getRisk,
+  risk,
+  addAdditionalRisk,
+  clockInOut ,
+  getClock,
+  clockview
+  } = ProjecsService();
+
 
   const [loading, setLoading] = useState(true);
   const [isFirstTimeLoad, setIsFirstTimeLoad] = useState(false);
@@ -120,7 +158,34 @@ const Root = () => {
 
   if (!isFirstTimeLoad)
     return (
-      <AgentContext.Provider value={{}}>
+      <AppContext.Provider value={{
+        success,
+        err,
+        login,
+        logout,
+        myaccountinfo,
+        getAllLiveProjects,
+        allLiveProjects,
+        latestClockinsTime,
+        getAllProjects,
+        allProjects,
+        getNotificatiobCount,
+        notificationCount,
+        getAllNotification,
+        notification,
+        readNotification,
+        readAllNotification,
+        projectDetails,
+        getProjectsDetails,
+        addNote,
+        deleteNote,
+        getRisk,
+        risk,
+        addAdditionalRisk,
+        clockInOut ,
+        getClock,
+        clockview
+      }}>
         <Stack.Navigator>
           {!Register && (
             <Stack.Screen
@@ -164,7 +229,8 @@ const Root = () => {
            
           
         </Stack.Navigator>
-      </AgentContext.Provider>
+       
+      </AppContext.Provider>
     );
 };
 
@@ -172,6 +238,21 @@ export default function App() {
   return (
     <NavigationContainer>
       <Root />
+      <FlashMessage 
+      textStyle={{
+        fontSize:12,
+        fontFamily: 'Nunito_600SemiBold',
+      }}
+      titleStyle={
+        {
+      fontSize:12,
+      fontFamily: 'Nunito_600SemiBold',
+       marginTop:10
+        }
+      }
+    //icon="auto"
+      //floating={true} 
+      duration={2000} animationDuration={300} position="top" />
     </NavigationContainer>
   );
 }

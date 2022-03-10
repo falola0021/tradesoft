@@ -1,6 +1,5 @@
+import React, { useState,useEffect,useContext } from 'react'
 
-
-import React from 'react';
 import {
   SafeAreaView,
   View,
@@ -11,6 +10,9 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { FontAwesome} from '@expo/vector-icons';
+import { AppContext } from '../../../App';
+import { showMessage, hideMessage } from 'react-native-flash-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -21,7 +23,38 @@ import {
 } from '@react-navigation/drawer';
 
 const CustomSidebarMenu = (props) => {
+  const app = useContext(AppContext);
+  var logout = app.logout;
+  const success = app.success;
+  const [message, setMessage] = React.useState(null);
+  const [firstname, setFirstname] = React.useState(null);
 
+const handleGetUser=async()=>{
+  const gotUser =await AsyncStorage.getItem('firstname')
+ 
+  setFirstname(gotUser)
+
+}
+
+  useEffect( () => {
+ handleGetUser()
+
+}, [])
+
+ 
+const handleLogout=()=>{
+  logout(setMessage)
+}
+
+
+if (success && message) {
+  showMessage({
+    message: 'SUCCESS',
+    description: message,
+    type: 'success',
+  });
+  setMessage(false);
+}
 
 
 
@@ -30,14 +63,14 @@ const CustomSidebarMenu = (props) => {
    <View style={styles.sidename}>
        <FontAwesome name='user-circle-o' color='#f6f3f4' size={47} />
 
-       <Text style={styles.name}>Hi Adedayo</Text>
+       <Text style={styles.name}>Hi {firstname}</Text>
        </View>
       <DrawerContentScrollView {...props}>
         <DrawerItemList  {...props} />
         
        
       </DrawerContentScrollView>
-         <TouchableOpacity  style={styles.logout}>
+         <TouchableOpacity onPress={handleLogout} style={styles.logout}>
      
 
            <Text style={styles.logouttext}>Logout</Text>
@@ -56,7 +89,7 @@ const styles = StyleSheet.create({
 
   sidename:{
     marginHorizontal:10,
-    marginTop:70,
+    marginTop:40,
     borderBottomWidth:0.5,
     borderBottomColor:"#66C825",
     paddingBottom:20

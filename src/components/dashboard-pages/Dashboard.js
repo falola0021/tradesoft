@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,10 +9,13 @@ import {
   SafeAreaView,
   ImageBackground,
   ImageBackgroundBase,
+  ActivityIndicator,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import MoreDetails from "../dashboard-moreinfo/MoreInfo"
+import MoreDetails from '../dashboard-moreinfo/MoreInfo';
+import { showMessage, hideMessage } from 'react-native-flash-message';
+import moment from 'moment';
 
 import {
   FontAwesome,
@@ -20,461 +23,193 @@ import {
   Feather,
   Octicons,
   Entypo,
+  Fontisto,
 } from '@expo/vector-icons';
 import Avatar from '../../../assets/images/avatar.png';
 
 import { ScrollView } from 'react-native-gesture-handler';
+import { AppContext } from '../../../App';
 
 const Create = () => {
   const navigation = useNavigation();
-  const [modalVisible ,setModalVisible] = React.useState(false);
+
+  const [loading, setLoading] = React.useState(false);
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [message, setMessage] = React.useState(null);
+  const [details, setDetails] = React.useState(null);
 
 
-  const handleNavigateToDetails = () => {
-  setModalVisible(true)
-    // navigation.navigate('CreateNewInvestmentPlan', {
-    //   clickedcustomer,
-    // });
+  const handleNavigateToDetails = (item) => {
+    setModalVisible(true);
+   setDetails(item)
   };
+
+  const app = useContext(AppContext);
+  var getAllLiveProjects = app.getAllLiveProjects;
+  var getAllProjects = app.getAllProjects;
+  var allProjects = app.allProjects;
+  var allLiveProjects = app.allLiveProjects;
+
+  const latestClockinsTime = app.latestClockinsTime;
+
+
+  const err = app.err;
+ 
+
+  useEffect(() => {
+    getAllLiveProjects(setModalVisible, setMessage, setLoading);
+    getAllProjects(setModalVisible, setMessage, setLoading);
+
+  }, []);
+
+  if (err && message) {
+    showMessage({
+      message: 'ERROR',
+      description: message,
+      type: 'danger',
+    });
+    setMessage(false);
+  }
+
 
   return (
     <SafeAreaView>
       <View>
         <View style={styles.container}>
           <Text style={styles.txt1b}>LIVE PROJECTS</Text>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={styles.scroll}
-          >
-            <View style={styles.viewcontainer}>
-             
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
+          {loading ? (
+            <ActivityIndicator size='25%' color='#c3c3c3' />
+          ) : (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={styles.scroll}
+            >
+              <View style={styles.viewcontainer}>
+                <FlatList
+                  numColumns={2}
+                  columnWrapperStyle={{ justifyContent: 'space-between' }}
+                  horizontal={false}
+                  showsVerticalScrollIndicator={false}
+                  legacyImplementation={false}
+                  data={allLiveProjects}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item, index }) => (
+                    <TouchableOpacity
+                      onPress={()=>handleNavigateToDetails(item)}
+                      style={styles.secbox}
+                    >
+                      <ImageBackground
+                        imageStyle={{
+                          borderTopLeftRadius: 6,
+                          borderTopRightRadius: 6,
+                        }}
+                        source={{
+                          uri: `http://portal.trade-soft.co.uk/${item?.image_src}`,
+                        }}
+                        style={styles.imgbg}
+                      >
+                        <FontAwesome
+                          name='tag'
+                          color={item?.is_callout == '1' ? '#01B0E9' : '#66C825'}
+                          size={18}
+                        />
+                      </ImageBackground>
+                      <View style={styles.bottomtxtbox}>
+                        <Text style={styles.bottomtxt}>{item?.name}</Text>
+                      </View>
 
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-             
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
+                      <View style={styles.bottomtxtbox2}>
+                        <Text style={styles.bottomtxt2}>
+                          {/* {item?.address.address_line_1} */}
+                        </Text>
+                      </View>
+                      <View style={styles.bottomtxtbox2}>
+                        <Text style={styles.bottomtxt2}>Task: </Text>
+                        <Text style={styles.bottomtxt3}>No task from API</Text>
+                      </View>
+                      <View style={styles.bottomtxtbox2}>
+                        <Text style={styles.bottomtxt2}>Start: </Text>
+                        <Text style={styles.bottomtxt3}>
+                          {moment(item?.start_date).format(
+                            'MM-DD-YY, h:mm:ss a'
+                          )}
+                        </Text>
+                      </View>
+                      <View style={styles.bottomtxtbox2}>
+                        <Text style={styles.bottomtxt2}>End: </Text>
+                        <Text style={styles.bottomtxt3}>
+                          {moment(item?.end_date).format('MM-DD-YY, h:mm:ss a')}
+                        </Text>
+                      </View>
+                      <View style={styles.bottomtxtbox2}>
+                        <Text style={styles.bottomtxt2}>Project Status: </Text>
+                        <Text style={styles.bottomtxt4}>{item?.status}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            </ScrollView>
+          )}
 
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
+{
+  !loading &&
+  
+ <>
 
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
-                <ImageBackground
-                  imageStyle={{
-                    borderTopLeftRadius: 6,
-                    borderTopRightRadius: 6,
-                  }}
-                  source={require('../../../assets/images/avatar.png')}
-                  style={styles.imgbg}
-                ></ImageBackground>
-                <View style={styles.bottomtxtbox}>
-                  <Text style={styles.bottomtxt}>JIIOJIOI</Text>
-                </View>
-
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>124, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL	 </Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Task: </Text>
-                  <Text style={styles.bottomtxt3}>Clean Gutter</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Start: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18am</Text>
-                </View>
-               <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>End: </Text>
-                  <Text style={styles.bottomtxt3}>20-10-2022 10:18pm</Text>
-                </View>
-                <View style={styles.bottomtxtbox2}>
-                  <Text style={styles.bottomtxt2}>Project Status: </Text>
-                  <Text style={styles.bottomtxt4}>Complete</Text>
-                </View>
-                
-                
-                
-              </TouchableOpacity>
-              
-             
-            </View>
-          </ScrollView>
           <Text style={styles.txt1b}>LATEST CLOCK-INS</Text>
-          <ScrollView style={{backgroundColor:'rgb(102,200,37)',paddingHorizontal:20,paddingTop:10,paddingBottom:10}} showsVerticalScrollIndicator={false}>
-            
-            <View style={styles.clockbox}>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='calendar'
-                  color='orange'
-                  size={14}
-                />
-                <Text style={styles.bb}>12-22-2012</Text>
-              </View>
 
-              <View style={styles.aa}>
-                <Entypo name='location-pin' color='yellow' size={14} />
-                <View>
-                  <Text style={styles.bb}>London</Text>
-                </View>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='green'
-                  size={14}
-                />
-                <Text style={styles.bb}>10:10am</Text>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='red'
-                  size={14}
-                />
-                <Text style={styles.bb}>2:30pm</Text>
-              </View>
-            </View>
-            <View style={styles.clockbox}>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                 name='calendar'
-                  color='orange'
-                  size={14}
-                />
-                <Text style={styles.bb}>12-22-2012</Text>
-              </View>
 
-              <View style={styles.aa}>
-                <Entypo name='location-pin' color='yellow' size={14} />
-                <View>
-                  <Text style={styles.bb}>London</Text>
+          {latestClockinsTime?.length > 0 ? (
+            <ScrollView
+              style={{
+                backgroundColor: 'rgb(102,200,37)',
+                paddingHorizontal: 20,
+                paddingTop: 10,
+                paddingBottom: 10,
+              }}
+              showsVerticalScrollIndicator={false}
+            >
+              {latestClockinsTime?.map((item) => (
+                <View key={item.id} style={styles.clockbox}>
+                  <View style={styles.aa}>
+                    <Fontisto name='checkbox-active' color='yellow' size={12} />
+                    <View>
+                      <Text style={styles.bb}>{item.project_name}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.aa}>
+                    <MaterialCommunityIcons
+                      name='clock-outline'
+                      color='green'
+                      size={14}
+                    />
+                    <Text style={styles.bb}>{item.clock_in_time}</Text>
+                  </View>
+                  <View style={styles.aa}>
+                    <MaterialCommunityIcons
+                      name='clock-outline'
+                      color='red'
+                      size={14}
+                    />
+                    <Text style={styles.bb}>{item.clock_out_time}</Text>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='green'
-                  size={14}
-                />
-                <Text style={styles.bb}>10:10am</Text>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='red'
-                  size={14}
-                />
-                <Text style={styles.bb}>2:30pm</Text>
-              </View>
-            </View>
-            <View style={styles.clockbox}>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                 name='calendar'
-                  color='orange'
-                  size={14}
-                />
-                <Text style={styles.bb}>12-22-2012</Text>
-              </View>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text>No Available clockin</Text>
+          )}
+        </>   
 
-              <View style={styles.aa}>
-                <Entypo name='location-pin' color='yellow' size={14} />
-                <View>
-                  <Text style={styles.bb}>London</Text>
-                </View>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='green'
-                  size={14}
-                />
-                <Text style={styles.bb}>10:10am</Text>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='red'
-                  size={14}
-                />
-                <Text style={styles.bb}>2:30pm</Text>
-              </View>
-            </View>
-            <View style={styles.clockbox}>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                 name='calendar'
-                  color='orange'
-                  size={14}
-                />
-                <Text style={styles.bb}>12-22-2012</Text>
-              </View>
-
-              <View style={styles.aa}>
-                <Entypo name='location-pin' color='yellow' size={14} />
-                <View>
-                  <Text style={styles.bb}>London</Text>
-                </View>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='green'
-                  size={14}
-                />
-                <Text style={styles.bb}>10:10am</Text>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='red'
-                  size={14}
-                />
-                <Text style={styles.bb}>2:30pm</Text>
-              </View>
-            </View>
-            <View style={styles.clockbox}>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                 name='calendar'
-                  color='orange'
-                  size={14}
-                />
-                <Text style={styles.bb}>12-22-2012</Text>
-              </View>
-
-              <View style={styles.aa}>
-                <Entypo name='location-pin' color='yellow' size={14} />
-                <View>
-                  <Text style={styles.bb}>London</Text>
-                </View>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='green'
-                  size={14}
-                />
-                <Text style={styles.bb}>10:10am</Text>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='red'
-                  size={14}
-                />
-                <Text style={styles.bb}>2:30pm</Text>
-              </View>
-            </View>
-            <View style={styles.clockbox}>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                 name='calendar'
-                  color='orange'
-                  size={14}
-                />
-                <Text style={styles.bb}>12-22-2012</Text>
-              </View>
-
-              <View style={styles.aa}>
-                <Entypo name='location-pin' color='yellow' size={14} />
-                <View>
-                  <Text style={styles.bb}>London</Text>
-                </View>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='green'
-                  size={14}
-                />
-                <Text style={styles.bb}>10:10am</Text>
-              </View>
-              <View style={styles.aa}>
-                <MaterialCommunityIcons
-                  name='clock-outline'
-                  color='red'
-                  size={14}
-                />
-                <Text style={styles.bb}>2:30pm</Text>
-              </View>
-            </View>
-          </ScrollView>
+}
         </View>
       </View>
-      <MoreDetails   modalVisible={modalVisible}
-  setModalVisible={setModalVisible} />
+      <MoreDetails
+      details={details}
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
     </SafeAreaView>
   );
 };
@@ -487,7 +222,7 @@ const styles = StyleSheet.create({
     marginLeft: 7,
     fontFamily: 'Nunito_400Regular',
     alignItems: 'center',
-    color:"#fff"
+    color: '#fff',
   },
   aa: {
     display: 'flex',
@@ -502,9 +237,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.2,
     borderBottomColor: '#fff',
     paddingTop: 10,
-    paddingBottom:20,
+    paddingBottom: 20,
     marginBottom: 5,
-  
   },
   container: {
     paddingTop: 20,
@@ -571,7 +305,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: '48%',
     height: 280,
-borderRadius:10,
+    borderRadius: 10,
     marginBottom: 20,
   },
   viewcontainer: {
@@ -580,8 +314,7 @@ borderRadius:10,
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     marginBottom: 20,
-  paddingHorizontal: 20,
-
+    paddingHorizontal: 20,
   },
   imgbg: {
     height: 110,
@@ -608,7 +341,7 @@ borderRadius:10,
   },
   bottomtxtbox: {
     paddingHorizontal: 10,
-    marginTop:10
+    marginTop: 10,
   },
   bottomtxt: {
     color: '#2E3A59',
@@ -644,10 +377,8 @@ borderRadius:10,
   },
 });
 
-
-
-
-{/* <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
+{
+  /* <TouchableOpacity onPress={handleNavigateToDetails} style={styles.secbox}>
 <ImageBackground
   imageStyle={{
     borderTopLeftRadius: 6,
@@ -689,4 +420,5 @@ borderRadius:10,
   <Text style={styles.bottomtxt3}>jm,kkkk</Text>
 </View>
 
-</TouchableOpacity> */}
+</TouchableOpacity> */
+}

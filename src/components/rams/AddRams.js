@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import {
   Alert,
   Modal,
@@ -12,14 +12,39 @@ import {
 } from 'react-native';
 import Logo from '../../../assets/images/logo.png';
 import TextArea from '../../components/inputs/InputTextArea';
-import {
-  AntDesign
-} from '@expo/vector-icons';
+import { AppContext } from '../../../App';
 
-const handleNavigate = ({ modalVisible, setModalVisible }) => {
+import { AntDesign } from '@expo/vector-icons';
+
+const handleNavigate = ({
+  modalVisible,
+  setModalVisible,
+  projectId,
+  setMessage,
+  setSuccess,
+  setErr,
+}) => {
   const [val, setVal] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
 
+  const app = useContext(AppContext);
+  const addAdditionalRisk = app.addAdditionalRisk;
 
+  const handleAddRisk = () => {
+    let riskDetails = val;
+    addAdditionalRisk(
+      setModalVisible,
+      setMessage,
+      setLoading,
+      setSuccess,
+      setErr,
+      projectId,
+      riskDetails,
+      setVal,
+ 
+    );
+   
+  };
 
   const close = () => {
     setModalVisible(false);
@@ -74,14 +99,11 @@ const handleNavigate = ({ modalVisible, setModalVisible }) => {
                   setVal={setVal}
                 />
 
-       
-
-                
                 <View style={styles.bottomtxtbuttonbox}>
                   {/* <TouchableOpacity style={styles.btn1}>
                <Text style={styles.btntext2}>GO TO PROJECT</Text>
                </TouchableOpacity> */}
-                  <TouchableOpacity style={styles.btn2}>
+                  <TouchableOpacity onPress={handleAddRisk} style={styles.btn2}>
                     <Text style={styles.btntext2}>Add Risks</Text>
                   </TouchableOpacity>
                 </View>
@@ -141,9 +163,9 @@ const styles = StyleSheet.create({
     color: 'rgba(46, 58, 89, 0.7)',
     fontSize: 8,
     fontFamily: 'Nunito_600SemiBold',
-    textTransform:"lowercase",
-    marginTop:30,
-    marginBottom:5
+    textTransform: 'lowercase',
+    marginTop: 30,
+    marginBottom: 5,
   },
   bottomtxt3: {
     color: '#2E3A59',
@@ -178,21 +200,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito_600SemiBold',
     marginBottom: 2,
   },
-  attachmentbox:{
-    display:"flex",
-    flexDirection:"row",
-    borderColor:"rgba(46, 58, 89, 0.2)",
-    borderWidth:1,
+  attachmentbox: {
+    display: 'flex',
+    flexDirection: 'row',
+    borderColor: 'rgba(46, 58, 89, 0.2)',
+    borderWidth: 1,
     // marginTop:30,
-    paddingVertical:15,
-    alignItems:"center",
-    justifyContent:"center",
-    borderRadius:5
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
   },
-  attachmenttext:{
+  attachmenttext: {
     color: 'rgba(46, 58, 89, 0.7)',
     fontSize: 12,
     fontFamily: 'Nunito_600SemiBold',
-    marginLeft:10
-  }
+    marginLeft: 10,
+  },
 });

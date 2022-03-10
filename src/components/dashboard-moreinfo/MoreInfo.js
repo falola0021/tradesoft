@@ -11,18 +11,29 @@ import {
   //Animated
 } from 'react-native';
 import Logo from "../../../assets/images/logo.png"
+import { useNavigation } from '@react-navigation/native';
+import moment from 'moment';
 
 
 
 const handleNavigate = ({
   modalVisible,
   setModalVisible,
+  details
  
 }) => {
-    
+  const navigation = useNavigation();
+
     const close=()=>{
         setModalVisible(false)
     }
+
+
+    const handleNavigateToDetails = () => {
+      setModalVisible(false)
+
+      navigation.navigate('ProjectDetails',{details})
+    };
   return (
       <>
     <TouchableOpacity
@@ -55,30 +66,35 @@ const handleNavigate = ({
               
              <View style={styles.titlebox}>
                <Text style={styles.bottomtxt3}>Project: </Text>
-               <Text style={styles.bottomtxt2}>jiiojioi</Text>
+               <Text style={styles.bottomtxt2}>{details?.name}</Text>
              </View>
              <View style={styles.titlebox}>
                {/* <Text style={styles.bottomtxt3}>Address: </Text> */}
-               <Text style={styles.bottomtxt2}>135, Brierley Hill, Dudley, West Midlands, SY3 3NH, AL</Text>
+               <Text style={styles.bottomtxt2}>{details?.address.address_line_1}, {details?.address.county}, {details?.address.country}</Text>
              </View>
              <View style={styles.titlebox}>
                <Text style={styles.bottomtxt3}>Task: </Text>
-               <Text style={styles.bottomtxt2}>Clean Gutter</Text>
+               <Text style={styles.bottomtxt2}>No task from API</Text>
              </View>
              <View style={styles.titlebox}>
                <Text style={styles.bottomtxt3}>Start Date: </Text>
-               <Text style={styles.bottomtxt2}>2022-02-11  00:00:00</Text>
+               <Text style={styles.bottomtxt2}>
+                 {moment(details?.start_date).format(
+                            'MM-DD-YY, h:mm:ss a'
+                          )}</Text>
              </View>
              <View style={styles.titlebox}>
                <Text style={styles.bottomtxt3}>End Date: </Text>
-               <Text style={styles.bottomtxt2}>2022-02-11  00:00:00</Text>
+               <Text style={styles.bottomtxt2}> {moment(details?.end_date).format(
+                            'MM-DD-YY, h:mm:ss a'
+                          )}</Text>
              </View>
              <View style={styles.titlebox}>
                <Text style={styles.bottomtxt3}>Postcode: </Text>
-               <Text style={styles.bottomtxt2}>DGbgggH</Text>
+               <Text style={styles.bottomtxt2}>{details?.address.postcode}</Text>
              </View>
              <View style={styles.bottomtxtbuttonbox}>
-               <TouchableOpacity style={styles.btn1}>
+               <TouchableOpacity onPress={handleNavigateToDetails} style={styles.btn1}>
                <Text style={styles.btntext2}>GO TO PROJECT</Text>
                </TouchableOpacity>
                <TouchableOpacity style={styles.btn2}>
@@ -162,7 +178,7 @@ const styles = StyleSheet.create({
   },
   btn1:{
     backgroundColor:'#66C825',
-    width:150,
+    width:140,
     height:37,
     borderRadius:7,
     alignItems:"center",
@@ -170,7 +186,7 @@ const styles = StyleSheet.create({
   },
   btn2:{
     backgroundColor:'#F1E22E',
-    width:150,
+    width:140,
     height:37,
     borderRadius:7,
     alignItems:"center",
@@ -179,7 +195,7 @@ const styles = StyleSheet.create({
   },
   btntext2:{
     color:"#000",
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: 'Nunito_600SemiBold',
     marginBottom:2,
 

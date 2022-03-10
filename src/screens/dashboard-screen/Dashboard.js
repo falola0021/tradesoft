@@ -1,11 +1,20 @@
 import 'react-native-gesture-handler';
 
-import React, { useState,useEffect } from 'react'
-import { View, TouchableOpacity, Image} from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  Image,
+  BackHandler,
+  Alert,
+} from 'react-native';
 
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import TopNav from '../../components/topnav/Nav';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppContext } from '../../../App';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Dashboard from '../../components/dashboard-pages/Dashboard';
 import Projects from '../../components/dashboard-pages/Projects';
@@ -15,6 +24,9 @@ import {
   MaterialCommunityIcons,
   Feather,
   Octicons,
+  Ionicons,
+  MaterialIcons,
+  Fontisto
 } from '@expo/vector-icons';
 
 // Import Custom Sidebar
@@ -59,14 +71,13 @@ function FirstScreenStack({ navigation }) {
   );
 }
 
-
 function SecondScreenStack({ navigation }) {
-  const [isLongPressed,setIsLongPressed]=useState(true)
-useEffect(() => {
-  if(isLongPressed){
-    setIsLongPressed(false)
-  }
-}, [isLongPressed])
+  const [isLongPressed, setIsLongPressed] = useState(true);
+  useEffect(() => {
+    if (isLongPressed) {
+      setIsLongPressed(false);
+    }
+  }, [isLongPressed]);
   return (
     <Stack.Navigator
       initialRouteName='Projects'
@@ -93,41 +104,72 @@ useEffect(() => {
 }
 
 function Dashboarddd() {
+  const app = useContext(AppContext);
+  var logout = app.logout;
+  const success = app.success;
+  const [message, setMessage] = React.useState(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert('Hold on!', 'Are you sure you want to Exit?', [
+          {
+            text: 'Cancel',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          {
+            text: 'YES',
+            onPress: () => {
+              logout(setMessage);
+              BackHandler.exitApp();
+            },
+          },
+        ]);
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () =>
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [])
+  );
+
   return (
     <>
       <Drawer.Navigator
-              drawerContent={(props) => <CustomSidebarMenu {...props} />}
+        drawerContent={(props) => <CustomSidebarMenu {...props} />}
         screenOptions={{
           drawerStyle: {
-            width: '68%'},
-          drawerItemStyle: { 
-            paddingBottom:12,paddingTop: 0, borderBottomWidth:0.5,
-            borderBottomColor:"#66C825",
-           backgroundColor:"rgba(255, 255, 255, 0.1)",
-           drawerActiveBackgroundColor:"red"
-          
+            width: '68%',
           },
-           
-         drawerActiveBackgroundColor:"#fff",
+          drawerItemStyle: {
+            paddingBottom: 12,
+            paddingTop: 0,
+            borderBottomWidth: 0.5,
+            borderBottomColor: '#66C825',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            drawerActiveBackgroundColor: 'red',
+          },
+
+          drawerActiveBackgroundColor: '#fff',
           drawerActiveTintColor: '#66C825',
           drawerInactiveTintColor: '#bdbdbd',
-         
-          
         }}
-
-
       >
         <Drawer.Screen
           name='Dashboard'
-          
           options={{
-          
             headerShown: false,
             drawerIcon: ({ color }) => (
-                <MaterialCommunityIcons name={"view-dashboard-outline"} size={16} color={color} />
+              <MaterialCommunityIcons
+                name={'view-dashboard-outline'}
+                size={16}
+                color={color}
+              />
             ),
-        }}
-         
+          }}
           component={FirstScreenStack}
         />
         <Drawer.Screen
@@ -135,8 +177,59 @@ function Dashboarddd() {
           options={{
             headerShown: false,
             drawerIcon: ({ color }) => (
-              <Octicons name={"project"} size={16} color={color} />
-          ),
+              <Octicons name={'project'} size={16} color={color} />
+            ),
+          }}
+          component={SecondScreenStack}
+        />
+        <Drawer.Screen
+          name='Message'
+          options={{
+            headerShown: false,
+            drawerIcon: ({ color }) => (
+              <FontAwesome name={'envelope-o'} size={16} color={color} />
+            ),
+          }}
+          
+          component={SecondScreenStack}
+        />
+        <Drawer.Screen
+          name='Calendar'
+          options={{
+            headerShown: false,
+            drawerIcon: ({ color }) => (
+              <Octicons name={'calendar'} size={16} color={color} />
+            ),
+          }}
+          component={SecondScreenStack}
+        />
+        <Drawer.Screen
+          name='Rams'
+          options={{
+            headerShown: false,
+            drawerIcon: ({ color }) => (
+              <Ionicons name={'medkit-outline'} size={16} color={color} />
+            ),
+          }}
+          component={SecondScreenStack}
+        />
+        <Drawer.Screen
+          name='Media'
+          options={{
+            headerShown: false,
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name={'perm-media'} size={16} color={color} />
+            ),
+          }}
+          component={SecondScreenStack}
+        />
+        <Drawer.Screen
+          name='Holiday'
+          options={{
+            headerShown: false,
+            drawerIcon: ({ color }) => (
+              <Fontisto name={'holiday-village'} size={16} color={color} />
+            ),
           }}
           component={SecondScreenStack}
         />
@@ -146,4 +239,3 @@ function Dashboarddd() {
 }
 
 export default Dashboarddd;
-
